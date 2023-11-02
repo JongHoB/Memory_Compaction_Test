@@ -2,37 +2,51 @@
 
 # Function to start tracing
 start_tracing() {
-	  echo "Starting tracing..."
-	    echo 1 > /sys/kernel/debug/tracing/tracing_on
-    }
+  echo "Starting tracing..."
+  echo 1 > /sys/kernel/debug/tracing/tracing_on
+}
 
-    # Function to stop tracing
-    stop_tracing() {
-	      echo "Stopping tracing..."
-	        echo 0 > /sys/kernel/debug/tracing/tracing_on
-	}
+# Function to stop tracing
+stop_tracing() {
+  echo "Stopping tracing..."
+  echo 0 > /sys/kernel/debug/tracing/tracing_on
+}
 
-	# Function to print trace data
-	print_trace_data() {
-		  echo "Trace Data:"
-		    cat /sys/kernel/debug/tracing/trace
-	    }
+# Function to print trace data
+print_trace_data() {
+  echo "Trace Data:"
+  cat /sys/kernel/debug/tracing/trace
+}
 
-	    # Start tracing
-	    start_tracing
+# Function to handle Ctrl+C
+handle_ctrl_c() {
+  echo "stop"
+  kill -9 $stress_ng_pid
+  stop_tracing
+  print_trace_data
+  exit 1
+}
 
-	    # Run stress-ng in the background
-	    stress-ng --vm 1 --vm-bytes 90% -t 10m &
+# Set up Ctrl+C handler
+trap handle_ctrl_c INT
 
-	    # Capture the process ID of the stress-ng command
-	    stress_ng_pid=$!
+# Start tracing
+start_tracing
 
-	    # Wait for the stress-ng command to finish or be interrupted (Ctrl+C)
-	    wait $stress_ng_pid
+# Run stress-ng in the background
+stress-ng --vm 1 --vm-bytes 90% -t 10m &
 
-	    # Stop tracing
-	    stop_tracing
+# Capture the process ID of the stress-ng command
+stress_ng_pid=$(echo $!)
 
-	    # Print trace data
-	    print_trace_data
+echo $stress_ng_pid
+
+# Wait for the stress-ng command to finish
+wait $stress_ng_pid
+
+# Stop tracing
+stop_tracing
+
+# Print trace data
+print_trace_data
 
