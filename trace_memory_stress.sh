@@ -23,7 +23,7 @@ print_trace_data() {
 start_tracing
 
 # Run stress-ng in the background
-stress-ng --vm 1 --vm-bytes 40% -t 10m &
+stress-ng --vm 3 --vm-bytes 90% -t 10m &
 
 # Capture the process ID of the stress-ng command
 stress_ng_pid=$(echo $!)
