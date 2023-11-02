@@ -29,7 +29,7 @@ start_tracing
 
 start_compaction
 
-sleep 5
+sleep 15
 
 stop_tracing
 
