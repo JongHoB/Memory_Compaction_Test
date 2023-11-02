@@ -27,6 +27,14 @@ echo <PID> > /sys/kernel/debug/tracing/set_ftrace_pid
 
 
 ### 2. 2nd Test with `trace_manual_compaction.sh`
+- Need to make original state. `echo > set_ftrace_pid`
+  
+```
+cat available_filter_functions
+echo "*compact*" > set_ftrace_filter
+echo "*migrate*" >> set_ftrace_filter
+
+```  
 - Execute the shell script and stress-ng seperately
 - `stress-ng --vm 1 --vm-bytes 90% -t 10m` and `sh trace_manual_compaction.sh`
 - Need to check further....
