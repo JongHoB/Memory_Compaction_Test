@@ -15,20 +15,9 @@ stop_tracing() {
 # Function to print trace data
 print_trace_data() {
   echo "Trace Data:"
-  cat /sys/kernel/debug/tracing/trace
+  cat /sys/kernel/debug/tracing/trace > ./trace_result.txt
+  echo > /sys/kernel/debug/tracing/trace
 }
-
-# Function to handle Ctrl+C
-handle_ctrl_c() {
-  echo "stop"
-  kill -9 $stress_ng_pid
-  stop_tracing
-  print_trace_data
-  exit 1
-}
-
-# Set up Ctrl+C handler
-trap handle_ctrl_c INT
 
 # Start tracing
 start_tracing
