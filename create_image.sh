@@ -99,7 +99,7 @@ network:
   eth0:
    dhcp4: true
 EOL
-sudo chroot $DIR /bin/bash -c "netplan apply"
+#sudo chroot $DIR /bin/bash -c "netplan apply"
 echo '/dev/root / ext4 defaults 0 0' | sudo tee -a $DIR/etc/fstab
 echo 'debugfs /sys/kernel/debug debugfs defaults 0 0' | sudo tee -a $DIR/etc/fstab
 echo 'securityfs /sys/kernel/security securityfs defaults 0 0' | sudo tee -a $DIR/etc/fstab
