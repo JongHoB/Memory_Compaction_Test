@@ -1,11 +1,11 @@
 #!/bin/bash
 
 KERNEL=./linux-6.6
-IMAGE=./linux-6.6
+IMAGE=./
 
 sudo qemu-system-x86_64 \
         -kernel $KERNEL/arch/x86/boot/bzImage \
-        -append "rw console=ttyS0,115200 root=/dev/sda rootfstype=ext4" \
+        -append "rw console=ttyS0,115200 root=/dev/sda2" \
         -enable-kvm -cpu host \
         -nographic \
 	-hda $IMAGE/jammy.img \
