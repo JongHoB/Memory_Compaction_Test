@@ -5,10 +5,11 @@ IMAGE=./
 
 sudo qemu-system-x86_64 \
         -kernel $KERNEL/arch/x86/boot/bzImage \
-        -append "rw console=ttyS0,115200 root=/dev/sda2" \
+        -append "rw console=ttyS0,115200 root=/dev/sda" \
+	-hda $IMAGE/jammy.img \
         -enable-kvm -cpu host \
         -nographic \
-	-hda $IMAGE/jammy.img \
+#	-drive file=./jammy.img
         -device e1000,netdev=net0 \
         -netdev user,id=net0,hostfwd=tcp::2222-:22 \
         -m 16G \
