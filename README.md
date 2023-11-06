@@ -57,3 +57,41 @@ echo "*migrate*" >> set_ftrace_filter
 
    - In OCI, we can check that it tries to `migrate pages` for memory compaction.
    - But in X86 Server, we can see `compact_unlock_should_abort.isra.0()` but after this, we cannot see any *`migrate`* or kind of *`compact_zone`* symbol......
+
+
+
+---
+# Linux VM for KGDB
+
+```bash
+sudo apt-get install -y pkg-config  libglib2.0-dev  libpixman-1-dev
+```
+
+```bash
+wget https://download.qemu.org/qemu-8.1.2.tar.xz
+tar xvJf qemu-8.1.2.tar.xz
+cd qemu-8.1.2
+./configure
+make
+```
+
+```bash
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.tar.xz
+tar -xvf linux-6.6.tar.xz
+cd linux-6.6
+```
+
+```bash
+sudo apt-get update && sudo apt-get install build-essential libncurses5 libncurses5-dev bin86 kernel-package libssl-dev bison flex libelf-dev
+```
+
+```bash
+make oldconfig
+make -j$(nproc)
+```
+
+```bash
+chmod +x create_image.sh
+./create-image.sh --distribution [relaese] --feature [full|minimal]
+./create-image.sh --distribution jammy --feature minimal
+```
