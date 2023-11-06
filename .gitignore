@@ -2,3 +2,9 @@ linux-*/
 qemu-*/
 *.log
 chroot/
+busybox-1.36.1/
+*.id_rsa
+*.id_rsa.pub
+initramfs/
+initramfs.*
+*.img
