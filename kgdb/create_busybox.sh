@@ -53,7 +53,8 @@ build_busybox() {
 	cd $SRC/initramfs
 	mkdir -pv {bin,dev,sbin,etc,proc,sys/kernel/debug,usr/{bin,sbin},lib,lib64,mnt/root,root}
 	cp -av $SRC/busybox-${BUSYBOX_VER}/_install/* $SRC/initramfs
-	sudo cp -av /dev/{null,console,tty,sda1} $SRC/initramfs/dev/
+	sudo cp -av /dev/{null,console,tty*,sda1} $SRC/initramfs/dev/
+	sudo cp -av /bin/sh $SRC/initramfs/bin/
 
 	# Set some defaults and enable promtless ssh to the machine for root.
 	mkdir -pv $DIR/etc/netplan
