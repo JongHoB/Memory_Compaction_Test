@@ -17,10 +17,10 @@ PREINSTALL_PKGS=openssh-server,curl,tar,gcc,libc6-dev,time,strace,sudo,less,psmi
 
 
 # If ADD_PACKAGE is not defined as an external environment variable, use our default packages
-ADD_PACKAGE="cmake,make,git,vim,tmux,usbutils,tcpdump,net-tools"
+ADD_PACKAGE="cmake,make,git,vim,tmux,usbutils,tcpdump,net-tools,fdisk"
 
 # Variables affected by options
-RELEASE=jammy
+RELEASE=bionic
 FEATURE=full
 SEEK=2047
 PERF=false
@@ -92,14 +92,7 @@ sudo --preserve-env=http_proxy,https_proxy,ftp_proxy,no_proxy debootstrap --arch
 # Set some defaults and enable promtless ssh to the machine for root.
 sudo sed -i '/^root/ { s/:x:/::/ }' $DIR/etc/passwd
 echo 'T0:23:respawn:/sbin/getty -L ttyS0 115200 vt100' | sudo tee -a $DIR/etc/inittab
-cat << EOL | sudo tee $DIR/etc/netplan/01-network-manager-all.yaml > /dev/null
-network:
- version: 2
- renderer: networkd
- ethernets:
-  eth0:
-   dhcp4: true
-EOL
+printf '\nauto eth0\niface eth0 inet dhcp\n' | sudo tee -a $DIR/etc/network/interfaces
 echo '/dev/root / ext4 defaults 0 0' | sudo tee -a $DIR/etc/fstab
 echo 'debugfs /sys/kernel/debug debugfs defaults 0 0' | sudo tee -a $DIR/etc/fstab
 echo 'securityfs /sys/kernel/security securityfs defaults 0 0' | sudo tee -a $DIR/etc/fstab
@@ -117,6 +110,8 @@ echo "net.ipv4.ping_group_range = 0 65535" | sudo tee -a $DIR/etc/sysctl.conf
 echo -en "127.0.0.1\tlocalhost\n" | sudo tee $DIR/etc/hosts
 echo "nameserver 8.8.8.8" | sudo tee -a $DIR/etc/resolve.conf
 echo "cslvm" | sudo tee $DIR/etc/hostname
+sudo chroot $DIR /bin/bash -c "sudo apt-get install build-essential"
+sudo chroot $DIR /bin/bash -c "apt-get update; apt-get install -y flex bison python-dev libelf-dev libunwind8-dev libaudit-dev libslang2-dev libperl-dev binutils-dev liblzma-dev libnuma-dev"
 ssh-keygen -f $RELEASE.id_rsa -t rsa -N ''
 sudo mkdir -p $DIR/root/.ssh/
 cat $RELEASE.id_rsa.pub | sudo tee $DIR/root/.ssh/authorized_keys

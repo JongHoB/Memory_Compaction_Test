@@ -7,7 +7,7 @@ sudo qemu-system-x86_64 \
         -nographic \
 	-append "console=ttyS0,115200 root=/dev/sda earlyprintk=serial net.ifnames=0" \
         -m 16G \
-	-drive file=./jammy.img,format=raw \
+	-drive file=./bionic.img,format=raw \
         -smp cpus=8,cores=4,maxcpus=8,dies=1,sockets=2,threads=1 \
 	-object memory-backend-ram,id=mem0,size=8G\
 	-object memory-backend-ram,id=mem1,size=8G\
