@@ -12,6 +12,8 @@ Memory compaction function call tracing with ftrace and KGDB
 ---
 
 ### 1. `trace_memory_stress.sh`
+- In the `trace_memory_stress.sh`, it will trace the `kcompactd` during `stress-ng --vm 3 --vm-bytes 90% -t 10m &`
+- You need to set the environment as follows first.
 ```
 cd /sys/kernel/debug/tracing
 cat available_tracers
@@ -19,7 +21,7 @@ echo function_graph > current_tracer
 ps -ef | grep kcompactd
 echo <PID> > /sys/kernel/debug/tracing/set_ftrace_pid
 ```
-- Need to use **2 shells** for shutting down the stress test process before 10minutes.
+- Need to use **2 shells** for shutting down the stress test process before 10minutes if you want or Change the minutes for execution.
 
 <img width="500" alt="image" src="https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/0a92da69-f4d6-4ee3-aeb2-0e18bda069d8">
 
