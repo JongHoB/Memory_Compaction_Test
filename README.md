@@ -86,8 +86,7 @@ Memory compaction function call tracing with ftrace and KGDB
         
         - In OCI, we can check that it tries to `migrate pages` for memory compaction.
         - But in X86 Server, we can see `compact_unlock_should_abort.isra.0()` but after this, we cannot see any *`migrate`* or kind of *`compact_zone`* symbol......
-        - See the reasons in KGDB below.
-     
+        - [See the reasons in KGDB below. In `compact_unlock_should_abort` in **ftrace test** chapter](#compact_unlock_should_abort-in-ftrace-test)
       </details>
 
       
