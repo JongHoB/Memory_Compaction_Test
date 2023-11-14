@@ -52,6 +52,7 @@ Memory compaction function call tracing with ftrace and KGDB
         - `kcompactd` is invoked mainly by `kswapd` and we test the program with allocating 90% of memory capacity
         - so *probably* `kswapd` must be executed and also it would  invoke the `kcompactd`
         - but there is no result.....Hmm
+        - (this kernel version was 5.4.0 so the proactive compaction would not be executed.)
     </details>
     
     ---
@@ -79,8 +80,10 @@ Memory compaction function call tracing with ftrace and KGDB
         
         - `ftrace/trace_manual_OCI_ARM_result.txt`
         <img width="482" alt="image" src="https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/2f82d03e-1e7e-4878-9b2a-5013e0a41789">
+        
         - `ftrace/trace_manual_swarm_result.txt`
         <img width="540" alt="image" src="https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/3573d62c-6edd-4183-987a-ed90824fc6e3">
+        
         - In OCI, we can check that it tries to `migrate pages` for memory compaction.
         - But in X86 Server, we can see `compact_unlock_should_abort.isra.0()` but after this, we cannot see any *`migrate`* or kind of *`compact_zone`* symbol......
         - See the reasons in KGDB below.
@@ -90,7 +93,7 @@ Memory compaction function call tracing with ftrace and KGDB
       
 ---
 
-## Linux VM for KGDB
+## Linux VM for KGDB - Use linux-6.6.0
 
 - **1. LAUNCH VM**
       <details><summary>launch vm</summary>
@@ -281,7 +284,7 @@ Memory compaction function call tracing with ftrace and KGDB
     
     ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/4c87a683-c454-4f8b-bf38-85c6d2e2cf6b)
     
-    - `**compact_unlock_should_abort` is called by `isolate_freepages_block`**
+    - **`compact_unlock_should_abort` is called by `isolate_freepages_block`**
     - When we see the image and the call stack, kind of `migrate_pages` or `compact*` symbols should be detected.
         - I see the log again (**`trace_manual_swarm_result.txt`)**
             
