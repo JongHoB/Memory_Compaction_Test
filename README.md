@@ -94,6 +94,11 @@ Memory compaction function call tracing with ftrace and KGDB
 
 ## Linux VM for KGDB - Use linux-6.6.0
 
+- Comparing to 5.4.0(previous installed version in x86 server), lots of features are added.
+- `proactive compaction, memory folios, ....`
+
+---
+
 - **1. LAUNCH VM**
       <details><summary>launch vm</summary>
       
