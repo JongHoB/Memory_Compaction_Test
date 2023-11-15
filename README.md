@@ -542,6 +542,16 @@ Memory compaction function call tracing with ftrace and KGDB
             ```
 
             - It allocates memory with `mmap`.
+              - In `man` page and [`GNU documentation`](https://www.gnu.org/software/libc/manual/html_node/Memory_002dmapped-I_002fO.html), flag `MAP_ANONYMOUS` is used for
+                ```
+                This flag tells the system to create an anonymous mapping, not connected to a file. filedes and offset are ignored, and the region is initialized with zeros.
+                Anonymous maps are used as the basic primitive to extend the heap on some systems. They are also useful to share data between multiple tasks without creating a file.
+                On some systems using private anonymous mmaps is more efficient than using malloc for large blocks. This is not an issue with the GNU C Library, as the included malloc automatically uses mmap where appropriate.
+
+                The mapping is not backed by any file; its contents are initialized to zero.
+                The fd and offset arguments are ignored; however, some implementations require fd to be -1 if MAP_ANONYMOUS (or MAP_ANON) is specified, and portable applications should ensure this.
+                The use of MAP_ANONYMOUS in conjunction with MAP_SHARED is supported on Linux only since kernel 2.4.
+                ```
     
     ---
 
