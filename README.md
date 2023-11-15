@@ -506,3 +506,49 @@ Memory compaction function call tracing with ftrace and KGDB
             ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/da46a20f-793a-4731-834a-5229c557cfb1)
 
     </details>
+
+
+- `stress-ng` commands
+    - Actually in [Memory Compaction in Linux Kernel.pdf](https://www.slideshare.net/AdrianHuang/memory-compaction-in-linux-kernelpdf), the test scenario was done with `stress-ng`
+    - So i wanted to test it with same approach. (Of course, the kernel version is significantly different. 5.11 vs 6.6)
+    
+    ---
+    
+    <details><summary>stress-ng analyze</summary>
+    
+    - Let’s check it from GDB.
+        
+        ```c
+        gdb stress-ng
+        run --vm 8 --vm-bytes 80% -t 10m
+        ```
+        
+        - Because of `fork` , it is detached.
+            
+            ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/478efc87-0c8f-4f8f-8152-8416767d2736)
+            
+        - https://woosunbi.tistory.com/94 : Need to set child process debugging
+        - **BUT……………………..There is no symbol!**
+            - **I tried to compile the program with debug option(-g, -ggdb). But there are errors…….**
+        - *FIX!* (I modify the `stress-vecwide.c` (took hours…..😱))
+            - `stress-ng --vm 1 --vm-bytes 80% -t 10m`
+            - `stress_run_parallel` →`stress_run` → `rc = g_stressor_current->stressor->info->stressor(&args);` :1439 → (stressor function) `stress-vm.c : stress_vm()`  → `stress_oomable_child` → `(func(args,context))stress_vm_child` → `stress_vm_all` → `mmap`
+            
+            ```c
+            buf = (uint8_t *)mmap(NULL, buf_sz,
+            					PROT_READ | PROT_WRITE,
+            					MAP_PRIVATE | MAP_ANONYMOUS |
+            					vm_flags, -1, 0);
+            ```
+
+            - It allocates memory with `mmap`.
+    
+    ---
+
+    - Maybe I need to change the command option.
+    - From the presentation pdf, it has too many features….
+        - https://github.com/ColinIanKing/stress-ng/blob/master/presentations/kernel-recipes-2023/kernel-recipes-2023.pdf
+        - https://events.linuxfoundation.org/wp-content/uploads/2022/10/Colin-Ian-King-Mentorship-Stress-ng.pdf
+    - In example folder of stress-ng  package , i can find some examples in `memory.job` and `vm.job`
+    
+    </details>
