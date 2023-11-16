@@ -639,7 +639,8 @@ Memory compaction function call tracing with ftrace and KGDB
 
   ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/e8e417aa-a5b4-4d8a-9377-845e81320457)
 
-        
+### BUT IT WORKS IN 6.6 VERSION. ALL YOU NEED IS PATIENCE..
+- Unlike 5.11, there was no `OOM`
         
     
 
