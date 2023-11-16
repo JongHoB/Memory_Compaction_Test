@@ -44,7 +44,7 @@ Memory compaction function call tracing with ftrace and KGDB
         
         ---
         
-        ### BUT SOMETHING IS ... SEEMS `KCOMPACTD` DOESN'T WORK PROPERLY
+        ### BUT ... SEEMS `KCOMPACTD` DOESN'T WORK PROPERLY
         
         <img width="387" alt="image" src="https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/7ae192ff-7779-4c3e-9b78-1682c8077bd0">
         
@@ -52,7 +52,7 @@ Memory compaction function call tracing with ftrace and KGDB
         - `kcompactd` is invoked mainly by `kswapd` and we test the program with allocating 90% of memory capacity
         - so *probably* `kswapd` must be executed and also it would  invoke the `kcompactd`
         - but there is no result.....Hmm
-        - (this kernel version was 5.4.0 so the proactive compaction would not be executed.)
+        - (Unlike kernel version with 5.4.0 which the proactive compaction would not be executed, 5.15 should be executed......)
     </details>
     
     ---
@@ -528,8 +528,8 @@ Memory compaction function call tracing with ftrace and KGDB
             ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/478efc87-0c8f-4f8f-8152-8416767d2736)
             
         - https://woosunbi.tistory.com/94 : Need to set child process debugging
-        - **BUT……………………..There is no symbol!**
-            - **I tried to compile the program with debug option(-g, -ggdb). But there are errors…….**
+        - ~~**BUT……………………..There is no symbol!**~~
+            - ~~**I tried to compile the program with debug option(-g, -ggdb). But there are errors…….**~~
         - *FIX!* (I modify the `stress-vecwide.c` (took hours…..😱))
             - `stress-ng --vm 1 --vm-bytes 80% -t 10m`
             - `stress_run_parallel` →`stress_run` → `rc = g_stressor_current->stressor->info->stressor(&args);` :1439 → (stressor function) `stress-vm.c : stress_vm()`  → `stress_oomable_child` → `(func(args,context))stress_vm_child` → `stress_vm_all` → `mmap`
