@@ -554,11 +554,93 @@ Memory compaction function call tracing with ftrace and KGDB
                 ```
     
     ---
-
-    - Maybe I need to change the command option.
+    - Let's check again about stress-ng.
     - From the presentation pdf, it has too many features….
         - https://github.com/ColinIanKing/stress-ng/blob/master/presentations/kernel-recipes-2023/kernel-recipes-2023.pdf
         - https://events.linuxfoundation.org/wp-content/uploads/2022/10/Colin-Ian-King-Mentorship-Stress-ng.pdf
-    - In example folder of stress-ng  package , i can find some examples in `memory.job` and `vm.job`
+    - Go to [`man` page](https://manpages.ubuntu.com/manpages/jammy/man1/stress-ng.1.html)
+    - Also, in example folder of stress-ng  package , i can find some examples in `memory.job` and `vm.job`
     
     </details>
+
+### CHANGE to KERNEL VERSION *5.11* (same as the reference)
+<details><summary>change</summary>
+- It works... (it takes about 30s?)
+    
+- `stress-ng --vm 8 --vm-bytes 90% -t 10m`
+![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/83ac9025-40a8-4b48-baca-a937f0338658)
+
+- Now i can go into the condition
+- if(`should_proactive_compact_node`) -> `fragmentation_score_node`
+  - In `fragmentation_score_node()`, In general, it can be seen that it does not contribute to the ***score value*** unless it is `ZONE_NORMAL`
+
+      ```
+      /*
+     * A zone's fragmentation score is the external fragmentation wrt to the
+     * COMPACTION_HPAGE_ORDER scaled by the zone's size. It returns a value
+     * in the range [0, 100].
+     *
+     * The scaling factor ensures that proactive compaction focuses on larger
+     * zones like ZONE_NORMAL, rather than smaller, specialized zones like
+     * ZONE_DMA32. For smaller zones, the score value remains close to zero,
+     * and thus never exceeds the high threshold for proactive compaction.
+     */
+    static unsigned int fragmentation_score_zone(struct zone *zone)
+    {
+	    unsigned long score;
+
+	    score = zone->present_pages *
+			    extfrag_for_order(zone, COMPACTION_HPAGE_ORDER);
+	    return div64_ul(score, zone->zone_pgdat->node_present_pages + 1);
+    }  
+      /*
+     * The per-node proactive (background) compaction process is started by its
+     * corresponding kcompactd thread when the node's fragmentation score
+     * exceeds the high threshold. The compaction process remains active till
+     * the node's score falls below the low threshold, or one of the back-off
+     * conditions is met.
+     */
+    static unsigned int fragmentation_score_node(pg_data_t *pgdat)
+    {
+	    unsigned int score = 0;
+	    int zoneid;
+
+	    for (zoneid = 0; zoneid < MAX_NR_ZONES; zoneid++) {
+		    struct zone *zone;
+
+		    zone = &pgdat->node_zones[zoneid];
+		    score += fragmentation_score_zone(zone);
+	    }
+
+	    return score;
+    }
+
+      ```
+- MEMORY ZONE: DMA32,DMA,NORMAL,MOVABLE,DEVICE (I didn't notice the HIGHMEM in GDB....Hmm?) 
+  - AFTER CHECKING `NORMAL`, the *score* was 91.( > wmark_high)( ALMOST 90% of the score was from NORMAL)
+- ***`proactive_compact_node`***
+  - [code](https://elixir.bootlin.com/linux/v5.11/source/mm/compaction.c#L2584)
+  -  --> ***`copmact_zone`***
+    - `compaction_suitable` -> `isolate_miagratepages`(isolate_migratepages_block) / `migrate_pages`
+
+      ```
+      $96 = {freepages = {next = 0xffffc9000026fde0, prev = 0xffffc9000026fde0}, migratepages = {next = 0xffffea0004001a48, prev = 0xffffea0004001a08},
+      nr_freepages = 0, nr_migratepages = 2, free_pfn = 4455936, migrate_pfn = 1049088, fast_start_pfn = 0, zone = 0xffff88843ffc8d00,
+      total_migrate_scanned = 416, total_free_scanned = 0, fast_search_fail = 0, search_order = 0, gfp_mask = 3264, order = -1, migratetype = 0, alloc_flags = 0,
+      highest_zoneidx = 0, mode = MIGRATE_SYNC_LIGHT, ignore_skip_hint = true, no_set_skip_hint = false, ignore_block_suitable = false, direct_compaction = false,
+      proactive_compaction = true, whole_zone = true, contended = false, rescan = false, alloc_contig = false}
+
+      ! number of migrate_pages 2
+      ! address would be 0xffffea0004001a08 - 0xffffea0004001a48 (sizeof(struct page)=0x40)
+      ```
+      
+
+- SUCCESS....
+
+  ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/e8e417aa-a5b4-4d8a-9377-845e81320457)
+
+        
+        
+    
+
+  </details>
