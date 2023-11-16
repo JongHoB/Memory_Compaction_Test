@@ -395,7 +395,7 @@ Memory compaction function call tracing with ftrace and KGDB
     
   </details>
     
-- `stress-ng` : Maybe it needs to **be changed.**
+- `stress-ng` + `kcompactd` function with `printk`
 
   <details><summary>stress-ng</summary>
   
