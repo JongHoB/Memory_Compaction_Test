@@ -779,6 +779,29 @@ Memory compaction function call tracing with ftrace and KGDB
 ### BUT IT WORKS IN 6.6 VERSION. ***ALL YOU NEED IS PATIENCE...***
 - ~~Unlike 5.11, there was no `OOM`~~
 
+---
+- `kswapd` to `kcompactd`
+  <details> <summary>kswapd to kcompactd</summary>
+
+  	- *As we saw in `ftrace` result, allocating almost 90% of memory would cause kswapd to reclaim pages and probably wake up kcompactd*
+	- Command same as usual
+  	- And add breakpoint to `wakeup_kcompactd`(mm/compaction.c:3017)
+  	  ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/3ddb1bbf-b5e3-4468-885a-e3fd51153f7c)
+
+  	  - `kswapd` calls `wake_up_kcompactd`!
+  	  - BUT the problem is that most of the ***allocating(reclaiming) order is 0***, which means only 2^0=1 page so it has not woken up kcompactd.
+  	  - I waited for a long time just in case. But it was same.
+  	 
+  	- Change the command using malloc.
+  	- `stress-ng --malloc 8 --malloc-bytes 2M -t 10m`
+  	  ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/0590913b-99bb-4d3d-ab90-6c04184cf37e)
+
+  	  - **order=3!! (2^3 pages)**
+  	  -  -> `kcompactd_node_suitable` -> `compaction_suitable`
+  	  -  The watermark was `COMPACT_SKIPPED` so we cannot see further procedure
+
+
+  </details>
 
 ---
 ## Reference
