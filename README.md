@@ -778,3 +778,22 @@ Memory compaction function call tracing with ftrace and KGDB
 
 ### BUT IT WORKS IN 6.6 VERSION. ***ALL YOU NEED IS PATIENCE...***
 - ~~Unlike 5.11, there was no `OOM`~~
+
+
+---
+## Reference
+- ftrace
+  - https://lwn.net/Articles/370423/
+  - https://medium.com/@hyoje420/linux-ftrace-%EC%82%AC%EC%9A%A9%EB%B2%95-31b4dc7ac93c
+- KERNEL+GDB
+  - https://github.com/AdrianHuang/gdb-linux-real-mode
+  - https://github.com/google/syzkaller
+  - https://github.com/jhk16/scripts/tree/master
+- Compaction & test & etc
+  - https://www.slideshare.net/AdrianHuang/memory-compaction-in-linux-kernelpdf
+  - https://hyeyoo.com/156
+  - https://elixir.bootlin.com/linux/v6.6/source/mm/compaction.c
+  - https://mitny.github.io/articles/2016-08/gdb-command
+  - https://mrrootable.tistory.com/28
+  - https://nitingupta.dev/post/proactive-compaction/
+  - https://medium.com/geekculture/linux-kernel-vs-memory-fragmentation-part-ii-9eab96030b6d
