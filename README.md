@@ -762,7 +762,9 @@ Memory compaction function call tracing with ftrace and KGDB
       ! number of migrate_pages 2
       ! address would be 0xffffea0004001a08 - 0xffffea0004001a48 (sizeof(struct page)=0x40)
       ```
-      
+
+      ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/18077982-a74f-4002-8bed-55cea12b23ff)
+
 
 - SUCCESS....
 
