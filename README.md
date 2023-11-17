@@ -764,6 +764,8 @@ Memory compaction function call tracing with ftrace and KGDB
       ```
 
       ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/18077982-a74f-4002-8bed-55cea12b23ff)
+      ![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/1086b2e9-a2f6-441c-bb04-3bf4504894fa)
+
 
 
 - SUCCESS....
