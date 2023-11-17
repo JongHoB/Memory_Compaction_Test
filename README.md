@@ -747,7 +747,7 @@ Memory compaction function call tracing with ftrace and KGDB
     }
 
       ```
-- MEMORY ZONE: DMA32,DMA,NORMAL,MOVABLE,DEVICE (I didn't notice the HIGHMEM in GDB....Hmm?) 
+- MEMORY ZONE: DMA32,DMA,NORMAL,MOVABLE,DEVICE (HIGHMEM for 32bit...)
   - AFTER CHECKING `NORMAL`, the *score* was 91.( > wmark_high)( ALMOST 90% of the score was from NORMAL)
 - ***`proactive_compact_node`***
   - [code](https://elixir.bootlin.com/linux/v5.11/source/mm/compaction.c#L2584)
