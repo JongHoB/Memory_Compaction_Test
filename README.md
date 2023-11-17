@@ -7,7 +7,9 @@ Memory compaction function call tracing with ftrace and KGDB
 - Concept of Memory Compaction
     
     [Memory Compaction in Linux Kernel.pdf](https://www.slideshare.net/AdrianHuang/memory-compaction-in-linux-kernelpdf)
-    
+
+![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/76af3c66-9772-4833-907c-0043af7801a1)|![image](https://github.com/JongHoB/Memory_Compaction_Test/assets/78012131/79c779f4-a318-411c-b275-6ad4e87c35d5)
+--- | --- | 
 
 ---
 
