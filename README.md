@@ -559,7 +559,136 @@ Memory compaction function call tracing with ftrace and KGDB
         - https://github.com/ColinIanKing/stress-ng/blob/master/presentations/kernel-recipes-2023/kernel-recipes-2023.pdf
         - https://events.linuxfoundation.org/wp-content/uploads/2022/10/Colin-Ian-King-Mentorship-Stress-ng.pdf
     - Go to [`man` page](https://manpages.ubuntu.com/manpages/jammy/man1/stress-ng.1.html)
-    - Also, in example folder of stress-ng  package , i can find some examples in `memory.job` and `vm.job`
+    - Also, in example folder of stress-ng package , i can find some examples in `memory.job` and `vm.job`
+    
+    ```c
+    #memory.job
+    
+    #
+    # malloc stressor options:
+    #   start N workers continuously calling malloc(3), calloc(3), real‐
+    #   loc(3)  and  free(3). By default, up to 65536 allocations can be
+    #   active at any point, but this can be  altered  with  the  --mal‐
+    #   loc-max option.  Allocation, reallocation and freeing are chosen
+    #   at random; 50% of the time memory  is  allocation  (via  malloc,
+    #   calloc  or  realloc) and 50% of the time allocations are free'd.
+    #   Allocation sizes are also random, with  the  maximum  allocation
+    #   size  controlled  by the --malloc-bytes option, the default size
+    #   being 64K.  The worker is re-started if it is killed by the  out
+    #   of mememory (OOM) killer.
+    #
+    malloc 0		# 0 means 1 stressor per CPU
+    # malloc-bytes 64K	# maximum allocation chunk size
+    # malloc-max 65536	# maximum number of allocations of chunks
+    # malloc-ops 1000000	# stop after 1000000 bogo ops
+    # malloc-thresh 1M	# use mmap when allocation exceeds this size
+    
+    stress-ng --malloc 8 --malloc-bytes 1M --malloc-max 55000 -t 10m --metrics &
+    ```
+    
+    - kcompactd process works **just** **for a moment**
+    
+    ```c
+    #
+    # mmap stressor options:
+    #   start N workers  continuously  calling  mmap(2)/munmap(2).   The
+    #   initial   mapping   is   a   large   chunk  (size  specified  by
+    #   --mmap-bytes) followed  by  pseudo-random  4K  unmappings,  then
+    #   pseudo-random  4K mappings, and then linear 4K unmappings.  Note
+    #   that this can cause systems to trip the  kernel  OOM  killer  on
+    #   Linux  systems  if  not  enough  physical memory and swap is not
+    #   available.  The MAP_POPULATE option is used  to  populate  pages
+    #   into memory on systems that support this.  By default, anonymous
+    #   mappings are used, however,  the  --mmap-file  and  --mmap-async
+    #   options allow one to perform file based mappings if desired.
+    #
+    mmap 0			# 0 means 1 stressor per CPU
+    # mmap-ops 1000000	# stop after 1000000 bogo ops
+    # mmap-async		# msync on each page when using file mmaps
+    # mmap-bytes 256M	# allocate 256M per mmap stressor
+    # mmap-file		# enable file based memory mapping
+    # mmap-mprotect		# twiddle page protection settings
+    ```
+    
+    ```c
+    #
+    # vm stressor options:
+    #   start N workers continuously calling mmap(2)/munmap(2) and writ‐
+    #   ing to the allocated memory. Note that this can cause systems to
+    #   trip the kernel OOM killer on Linux systems if not enough physi‐
+    #   cal memory and swap is not available.
+    #
+    vm 0			# 0 means 1 stressor per CPU
+    # vm-ops 1000000	# stop after 1000000 bogo ops
+    # vm-bytes 256M		# size of each vm mmapping
+    # vm-hang 0		# sleep 0 seconds before unmapping
+    # vm-keep		# keep mapping
+    # vm-locked		# lock pages into memory using MAP_LOCKED
+    # vm-method all		# vm data exercising method; use all types
+    # vm-populate		# populate (prefault) pages into memory
+    
+    stress-ng --vm 8 --vm-bytes 70% --vm-method all --vm-keep -t 10m score:10
+    
+    stress-ng --vm 1 --vm-bytes 1G --vm-method all --vm-keep -t 10m score:30
+    
+    stress-ng --vm 1 --vm-bytes 512M --vm-method all --vm-keep -t 10m score:39
+    stress-ng --vm 8 --vm-bytes 90% --vm-method all --vm-keep -t 10m score:0??????
+    stress-ng --vm 8 --vm-bytes 90% --vm-method all --vm-keep -t 10m score:0????
+    stress-ng --vm 8 --vm-bytes 90%  -t 10m
+    ```
+    
+    ```c
+    #0  fill_contig_page_info (info=<synthetic pointer>, suitable_order=suitable_order@entry=9, zone=zone@entry=0xffff88843ffc8000) at mm/vmstat.c:1067
+    #1  extfrag_for_order (zone=zone@entry=0xffff88843ffc8000, order=order@entry=9) at mm/vmstat.c:1119
+    #2  0xffffffff813230fb in fragmentation_score_zone (zone=0xffff88843ffc8000) at mm/compaction.c:2100
+    #3  fragmentation_score_zone_weighted (zone=0xffff88843ffc8000) at mm/compaction.c:2117
+    #4  fragmentation_score_node (pgdat=pgdat@entry=0xffff88843ffc8000) at mm/compaction.c:2139
+    #5  0xffffffff81328b13 in should_proactive_compact_node (pgdat=0xffff88843ffc8000) at mm/compaction.c:2166
+    #6  kcompactd (p=0xffff88843ffc8000) at mm/compaction.c:3096
+    ```
+    
+    ```c
+    #fill_config_page_info 
+    /*                                                                                                                                                                                                                           │
+    * Calculate the number of free pages in a zone, how many contiguous                                                                                                                                                         │
+    * pages are free and how many are large enough to satisfy an allocation of                                                                                                                                                  │
+    * the target size. Note that this function makes no attempt to estimate                                                                                                                                                     │
+    * how many suitable free blocks there *might* be if MOVABLE pages were                                                                                                                                                      │
+    * migrated. Calculating that is possible, but expensive and can be                                                                                                                                                          │
+    * figured out from userspace                                                                                                                                                                                                │
+    */
+    
+    #extfrag_for_order
+    /*                                                                                                                                                                                                                           │
+    * Calculates external fragmentation within a zone wrt the given order.                                                                                                                                                      │
+    * It is defined as the percentage of pages found in blocks of size                                                                                                                                                          │
+    * less than 1 << order. It returns values in range [0, 100].                                                                                                                                                                │
+    */ !!ORDER=9
+    
+    #fragmentation_score_zone_weighted
+    /*                                                                                                                                                                                                                           │
+    * A weighted zone's fragmentation score is the external fragmentation                                                                                                                                                       │
+    * wrt to the COMPACTION_HPAGE_ORDER scaled by the zone's size. It                                                                                                                                                           │
+    * returns a value in the range [0, 100].                                                                                                                                                                                    │*                                                                                                                                                                                                                           │
+    * The scaling factor ensures that proactive compaction focuses on larger                                                                                                                                                    │
+    * zones like ZONE_NORMAL, rather than smaller, specialized zones like                                                                                                                                                       │
+    * ZONE_DMA32. For smaller zones, the score value remains close to zero,                                                                                                                                                     │
+    * and thus never exceeds the high threshold for proactive compaction.                                                                                                                                                       │
+    */
+    ZONE NORMAL에 신경써서 더한다.
+    
+    #fragmentation_score_node
+    /*                                                                                                                                                                                                                           │
+    * The per-node proactive (background) compaction process is started by its                                                                                                                                                  │
+    * corresponding kcompactd thread when the node's fragmentation score                                                                                                                                                        │
+    * exceeds the high threshold. The compaction process remains active till                                                                                                                                                    │
+    * the node's score falls below the low threshold, or one of the back-off                                                                                                                                                    │
+    * conditions is met.                                                                                                                                                                                                        │
+    */
+    *******score값이 >wmark_high 보다 클 때 작동 (리눅스 기본 default값이 90)
+    
+    ```
+  
     
     </details>
 
@@ -641,5 +770,5 @@ Memory compaction function call tracing with ftrace and KGDB
 
   </details>
 
-### BUT IT WORKS IN 6.6 VERSION. ALL YOU NEED IS PATIENCE..
-- Unlike 5.11, there was no `OOM`
+### BUT IT WORKS IN 6.6 VERSION. ***ALL YOU NEED IS PATIENCE...***
+- ~~Unlike 5.11, there was no `OOM`~~
