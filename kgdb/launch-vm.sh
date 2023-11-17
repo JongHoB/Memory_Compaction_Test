@@ -8,9 +8,7 @@ sudo qemu-system-x86_64 \
 	-append "console=ttyS0,115200 root=/dev/sda earlyprintk=serial net.ifnames=0 nokaslr norandmaps" \
         -m 16G \
 	-drive file=./bionic.img,format=raw \
-	-smp 2 \
-	-object memory-backend-ram,id=mem0,size=16G\
-	-numa node,memdev=mem0,nodeid=0,cpus=0-1\
+	-smp 8 \
 	-net user,host=10.0.2.10,hostfwd=tcp:127.0.0.1:10021-:22\
 	-net nic,model=e1000 \
         -pidfile vm.pid -gdb tcp::4321 \
@@ -21,3 +19,6 @@ sudo qemu-system-x86_64 \
 	#-object memory-backend-ram,id=mem1,size=8G\
         #-numa node,memdev=mem0,nodeid=0,cpus=0-3 \
         #-numa node,memdev=mem1,nodeid=1,cpus=4-7 \
+#-object memory-backend-ram,id=mem0,size=16G\
+#	-numa node,memdev=mem0,nodeid=0,cpus=0-1\
+
